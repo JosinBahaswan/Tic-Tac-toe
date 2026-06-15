@@ -26,15 +26,24 @@
 
         <div class="divider"><span>atau</span></div>
 
-        <div class="join-row">
-          <input
-            v-model="joinCode"
-            class="input code-input"
-            placeholder="Masukkan kode"
-            maxlength="6"
-            @keyup.enter="joinGame"
-          />
-          <button class="btn btn-ghost" :disabled="!joinCode.trim() || !playerName.trim()" @click="joinGame">
+        <div class="join-section">
+          <div class="otp-row">
+            <input
+              v-for="(_, i) in 6"
+              :key="i"
+              :ref="el => { if (el) otpRefs[i] = el }"
+              class="otp-box"
+              type="text"
+              inputmode="text"
+              maxlength="1"
+              :value="otpChars[i]"
+              @keydown="onOtpKey($event, i)"
+              @input="onOtpInput($event, i)"
+              @paste.prevent="onOtpPaste($event)"
+              @focus="$event.target.select()"
+            />
+          </div>
+          <button class="btn btn-ghost" :disabled="joinCode.length < 6 || !playerName.trim()" @click="joinGame">
             Gabung
           </button>
         </div>
@@ -133,6 +142,10 @@ import { ref, computed, onMounted, onUnmounted } from 'vue'
 const screen = ref('lobby')    // lobby | waiting | game
 const playerName = ref('')
 const joinCode = ref('')
+
+// OTP boxes
+const otpChars = ref(Array(6).fill(''))
+const otpRefs = ref([])
 const lobbyError = ref('')
 const moveError = ref('')
 const copied = ref(false)
@@ -190,6 +203,41 @@ async function pollGame() {
       screen.value = 'game'
     }
   } catch (e) { /* network hiccup, ignore */ }
+}
+
+// ── OTP Handlers ─────────────────────────────────────────────────────────────
+function onOtpInput(e, i) {
+  const val = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '')
+  otpChars.value[i] = val.slice(-1)
+  joinCode.value = otpChars.value.join('')
+  if (val && i < 5) otpRefs.value[i + 1]?.focus()
+}
+
+function onOtpKey(e, i) {
+  if (e.key === 'Backspace') {
+    if (otpChars.value[i]) {
+      otpChars.value[i] = ''
+    } else if (i > 0) {
+      otpChars.value[i - 1] = ''
+      otpRefs.value[i - 1]?.focus()
+    }
+    joinCode.value = otpChars.value.join('')
+  } else if (e.key === 'ArrowLeft' && i > 0) {
+    otpRefs.value[i - 1]?.focus()
+  } else if (e.key === 'ArrowRight' && i < 5) {
+    otpRefs.value[i + 1]?.focus()
+  } else if (e.key === 'Enter' && joinCode.value.length === 6) {
+    joinGame()
+  }
+}
+
+function onOtpPaste(e) {
+  const text = (e.clipboardData || window.clipboardData)
+    .getData('text').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 6)
+  otpChars.value = [...text.padEnd(6, '').split('').slice(0, 6)]
+  joinCode.value = otpChars.value.join('')
+  const next = Math.min(text.length, 5)
+  otpRefs.value[next]?.focus()
 }
 
 // ── Actions ───────────────────────────────────────────────────────────────────
@@ -255,6 +303,7 @@ function leaveGame() {
   yourSymbol.value = ''
   game.value = null
   joinCode.value = ''
+  otpChars.value = Array(6).fill('')
   screen.value = 'lobby'
 }
 
@@ -365,8 +414,28 @@ body {
 .tagline { color: var(--muted); font-size: .95rem; margin-bottom: 4px; }
 .lobby-actions { display: flex; flex-direction: column; gap: 12px; }
 .lobby-actions .btn { width: 100%; }
-.join-row { display: flex; gap: 10px; }
-.join-row .input { flex: 1; }
+.join-section { display: flex; flex-direction: column; gap: 10px; }
+.join-section .btn { width: 100%; }
+.otp-row { display: flex; gap: 8px; justify-content: center; }
+.otp-box {
+  width: 100%;
+  aspect-ratio: 1;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  color: var(--text);
+  font-family: var(--ff-display);
+  font-size: 1.4rem;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-align: center;
+  text-transform: uppercase;
+  outline: none;
+  transition: border-color .2s, background .2s;
+  caret-color: transparent;
+}
+.otp-box:focus { border-color: var(--o-col); background: var(--surface2); }
+.otp-box:not(:placeholder-shown) { border-color: var(--muted); }
 .divider { display: flex; align-items: center; gap: 12px; color: var(--muted); font-size: .85rem; }
 .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
 .error-msg { color: var(--x-col); font-size: .9rem; text-align: center; }
