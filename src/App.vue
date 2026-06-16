@@ -132,6 +132,27 @@
 
       <p v-if="moveError" class="error-msg">{{ moveError }}</p>
     </div>
+
+    <!-- FAQ — tampil di semua layar kecuali saat sedang main -->
+    <section v-if="screen !== 'game'" class="faq-section" aria-label="Pertanyaan Umum">
+      <h2 class="faq-title">Pertanyaan Umum</h2>
+      <div class="faq-list">
+        <div
+          v-for="(item, i) in faqs"
+          :key="i"
+          class="faq-item"
+          :class="{ open: openFaq === i }"
+        >
+          <button class="faq-q" @click="openFaq = openFaq === i ? null : i" :aria-expanded="openFaq === i">
+            <span>{{ item.q }}</span>
+            <span class="faq-icon">{{ openFaq === i ? '−' : '+' }}</span>
+          </button>
+          <div class="faq-a" :style="openFaq === i ? 'max-height:200px' : 'max-height:0'">
+            <p>{{ item.a }}</p>
+          </div>
+        </div>
+      </div>
+    </section>
   </div>
 </template>
 
@@ -156,6 +177,35 @@ const yourSymbol = ref('')     // 'X' | 'O'
 const game = ref(null)
 
 let pollTimer = null
+
+// ── FAQ ───────────────────────────────────────────────────────────────────────
+const openFaq = ref(null)
+const faqs = [
+  {
+    q: 'Bagaimana cara main bareng teman?',
+    a: 'Masukkan nama kamu → klik "Buat Game Baru" → bagikan kode 6 digit ke temanmu. Teman cukup masukkan kode itu dan langsung bisa main berdua secara real-time.'
+  },
+  {
+    q: 'Apakah perlu daftar akun?',
+    a: 'Tidak perlu sama sekali. Langsung buka browser, masukkan nama, dan mulai main. Tanpa registrasi, tanpa login.'
+  },
+  {
+    q: 'Apakah game ini gratis?',
+    a: 'Ya, 100% gratis. Tidak ada iklan, tidak ada biaya tersembunyi, dan tidak ada pembelian dalam aplikasi.'
+  },
+  {
+    q: 'Berapa lama sesi game tersimpan?',
+    a: 'Ruangan aktif selama 2 jam sejak dibuat. Setelah itu otomatis dihapus. Kamu bisa buat ruangan baru kapan saja.'
+  },
+  {
+    q: 'Bisa main di HP?',
+    a: 'Bisa! Game ini sepenuhnya responsif. Berjalan lancar di browser HP maupun PC tanpa perlu install aplikasi.'
+  },
+  {
+    q: 'Apa yang terjadi jika lawan disconnect?',
+    a: 'Ruangan tetap aktif selama 2 jam. Lawan bisa kembali gabung dengan kode yang sama kapan saja selama sesi belum kedaluwarsa.'
+  },
+]
 
 // ── Computed ──────────────────────────────────────────────────────────────────
 const isMyTurn = computed(() =>
@@ -581,5 +631,67 @@ body {
   padding: 6px 14px;
   font-family: var(--ff-display);
   letter-spacing: .06em;
+}
+
+/* ── FAQ ── */
+.faq-section {
+  margin-top: 40px;
+  padding-top: 32px;
+  border-top: 1px solid var(--border);
+}
+.faq-title {
+  font-family: var(--ff-display);
+  font-size: .75rem;
+  font-weight: 400;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 16px;
+}
+.faq-list { display: flex; flex-direction: column; gap: 8px; }
+.faq-item {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  transition: border-color .2s;
+}
+.faq-item.open { border-color: var(--muted); }
+.faq-q {
+  width: 100%;
+  background: none;
+  border: none;
+  color: var(--text);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: var(--ff-body);
+  font-size: .95rem;
+  font-weight: 500;
+  gap: 12px;
+  padding: 14px 16px;
+  text-align: left;
+}
+.faq-q:hover { color: #fff; }
+.faq-icon {
+  color: var(--muted);
+  flex-shrink: 0;
+  font-size: 1.2rem;
+  font-family: var(--ff-display);
+  line-height: 1;
+  transition: color .2s;
+}
+.faq-item.open .faq-icon { color: var(--o-col); }
+.faq-a {
+  overflow: hidden;
+  max-height: 0;
+  transition: max-height .3s ease;
+}
+.faq-a p {
+  color: var(--muted);
+  font-size: .9rem;
+  line-height: 1.65;
+  padding: 0 16px 16px;
 }
 </style>

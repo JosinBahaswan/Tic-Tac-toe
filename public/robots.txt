@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://tactic2id.vercel.app/sitemap.xml
