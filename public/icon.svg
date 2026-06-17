@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128" fill="none">
+  <rect width="128" height="128" rx="16" fill="#1F2937"/>
+  <g stroke="#F9FAFB" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="16" y="16" width="96" height="96" rx="8" stroke-opacity="0.08" fill="none"/>
+    <!-- Grid lines -->
+    <path d="M16 48h96" stroke-opacity="0.18" />
+    <path d="M16 80h96" stroke-opacity="0.18" />
+    <path d="M48 16v96" stroke-opacity="0.18" />
+    <path d="M80 16v96" stroke-opacity="0.18" />
+
+    <!-- X (top-left) -->
+    <path d="M22 22 L42 42 M42 22 L22 42" stroke="#FFEDD5" stroke-width="5"/>
+    <!-- O (top-center) -->
+    <circle cx="64" cy="32" r="10" stroke="#BFDBFE" stroke-width="4" fill="none"/>
+    <!-- X (center-right) -->
+    <path d="M86 54 L106 74 M106 54 L86 74" stroke="#FECACA" stroke-width="5"/>
+    <!-- O (bottom-center) -->
+    <circle cx="64" cy="96" r="10" stroke="#D1FAE5" stroke-width="4" fill="none"/>
+  </g>
+</svg>
